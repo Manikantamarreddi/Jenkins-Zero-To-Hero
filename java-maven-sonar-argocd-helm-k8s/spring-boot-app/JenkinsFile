@@ -21,5 +21,31 @@ pipeline {
                 sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
             }
         }
+
+        stage ('SonarQube Analysis'){
+            steps {
+                sh 'ls -ltr'
+                withSonarQubeEnv(credentialsId: 'SonarQube') {
+                // some block
+                sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar'
+               }
+            }
+        }
+
+        stage ('Check for Qulaity Gate'){
+            steps{
+                script {
+                    timeout(time: 1, unit: 'HOURS'){
+                         def qg = waitForQualityGate()
+                           if (qg.status != 'OK'){
+                              error "pipeline aborted due to quality Gate check failure : ${qg.status}"
+                            }
+                    else{
+                        print "Quality Gate check is successful ${qg.status}. Procees to next stage"
+                    } 
+                    }
+                }
+            }
+        }
     }
 }
