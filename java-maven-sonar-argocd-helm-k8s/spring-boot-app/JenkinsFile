@@ -23,29 +23,15 @@ pipeline {
         }
 
         stage ('SonarQube Analysis'){
+            environment{
+                SONAR_URL = "http://3.110.120.12/:9000"
+            }
             steps {
                 sh 'ls -ltr'
-                withSonarQubeEnv(credentialsId: 'SonarQube') {
-                // some block
-                sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar'
-               }
+                withCredentials([string(credentialsId: 'SonarQube', variable: 'snoar_token')]) {
+                sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$snoar_token -Dsonar.host.url=${SONAR_URL}'
+                }
             }
         }
-
-        // stage ('Check for Qulaity Gate'){
-        //     steps{
-        //         script {
-        //             timeout(time: 1, unit: 'HOURS'){
-        //                  def qg = waitForQualityGate()
-        //                    if (qg.status != 'OK'){
-        //                       error "pipeline aborted due to quality Gate check failure : ${qg.status}"
-        //                     }
-        //             else{
-        //                 print "Quality Gate check is successful ${qg.status}. Procees to next stage"
-        //             } 
-        //             }
-        //         }
-        //     }
-        // }
     }
 }
