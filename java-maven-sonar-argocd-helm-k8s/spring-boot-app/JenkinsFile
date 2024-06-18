@@ -46,5 +46,25 @@ pipeline {
                 }
             }
         }
+
+        stage ('Update Manifest Files') {
+            environment{
+            GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
+            GIT_USER_NAME = "Manikantamarreddi"
+            }
+            steps{
+                withCredentials([string(credentialsId: 'Git_Token', variable: 'Git_Token')]) {
+                    sh '''
+                    git config user.email "manikantamarreddi33@gmail.com"
+                    git config user.name "Manikantamarreddi"
+                    BUILD_NUMBER=${BUILD_NUMBER}
+                    sed -i "s/abhishekf5/ultimate-cicd:.*/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                    git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                    git push https://${Git_Token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+                    '''
+                }
+            }
+        }
     }
 }
