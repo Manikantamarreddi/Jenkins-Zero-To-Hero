@@ -33,5 +33,18 @@ pipeline {
                 }
             }
         }
+
+        stage ('Build and Push Docker image') {
+            steps {
+                withCredentials([usernameColonPassword(credentialsId: 'docker', variable: 'docker')]) {
+                sh '''
+                cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && docker build -t manikanta1213/ultimate-cicd:${BUILD_NUMBER} .
+                docker login -u manikanta1213 -p $docker
+                docker push manikanta1213/ultimate-cicd:${BUILD_NUMBER}
+                docker rmi manikanta1213/ultimate-cicd:${BUILD_NUMBER}
+                '''
+                }
+            }
+        }
     }
 }
