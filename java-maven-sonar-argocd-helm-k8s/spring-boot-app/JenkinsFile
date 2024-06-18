@@ -24,7 +24,7 @@ pipeline {
 
         stage ('SonarQube Analysis'){
             environment{
-                SONAR_URL = "http://3.110.120.12/:9000"
+                SONAR_URL = "http://3.110.120.12:9000"
             }
             steps {
                 sh 'ls -ltr'
